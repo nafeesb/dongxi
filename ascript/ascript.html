@@ -1,0 +1,93 @@
+<html>
+<head><title>#!ascript</title></head>
+
+<STYLE TYPE="text/css">
+BODY {font-family: verdana, arial, helvetica; font-size: 10pt;}
+TD {font-family: verdana, arial, helvetica; background-color : #eeeeee;}
+TD.head {font-family: verdana, arial, helvetica; font-size: 10pt; text-align: left; background-color : #cccccc; }
+</STYLE>
+
+<body bgcolor=#FFFFFF>
+<TABLE width=750 BORDER=0 CELLSPACING=3 CELLPADDING=6 BGCOLOR=#eeeeee>
+<caption><b>ascript: A Wrapper for Apple's osascript</b><br>
+<a href="http://www.nafees.net">Nafees Bin Zafar</a>
+</caption>
+<tr>
+  <td colspan=2 class=head><b>Description</b></td>
+</tr>
+<tr>
+  <td valign=top>Introduction</td>
+  <td>
+  ascript is a wrapper around the AppleScript interpreter to permit unix styled
+  commandline shell scripts.  The current way to do this is by calling the
+  <i>open</i> or <i>osascript</i> with the scriptname as the
+  argument.  This, IMHO, is not orthogonal in the unix sense.
+  <p>
+  <i><a href="http://www.osxfaq.com/man/1/osascript.ws">osascript</a></i> is
+  the interpreter for Apple's Open Scripting Architecture (OSA) languages.  You
+  can do some really cool things with <a
+  href="http://www.apple.com/applescript">AppleScript</a>
+  </td>
+</tr>
+<tr>
+  <td colspan=2 class=head><b>News</b></td>
+</tr>
+<tr>
+  <td valign="top">11-10-2003: Initial release</td>
+  <td>0.1 Brand spanking new</td>
+</tr>
+<tr>
+  <td colspan=2 class=head><b>Download</b></td>
+</tr>
+<tr>
+  <td><a href="http://www.nafees.net/dist/ascript-0.1.tar.gz">ascript-0.1.tar.gz</a></td>
+  <td>All you need!</td>
+</tr>
+
+<tr>
+  <td colspan=2 class=head><b>Installation Instructions</b></td>
+</tr>
+
+<tr>
+  <td valign=top>Compiling on Mac OSX</td>
+  <td>
+     You will of course need the compiler installed.  I wrote this in C++ for
+     no reason besides that I usually write large applications in C++.<br>
+      <ul>
+      <li> Unpack the tarball (<i>zcat ascript.tar.gz | tar -xf -</i>)
+      <li> cd ascript
+      <li> g++ -o ascript ascript.cc
+      </ul>
+     You will probably want to copy the <i>ascript</i> executable to somewhere
+     standard list <i>/usr/bin</i>.
+  </td>
+</tr>
+
+
+<tr>
+  <td colspan=2 class=head><b>Usage Instructions</b></td>
+</tr>
+<tr>
+  <td valign=top>A sample AppleScript</td>
+  <td>
+  <pre>
+#!/usr/bin/ascript
+
+--  Created by Nafees Bin Zafar on Mon Nov 10 2003.
+
+tell application "iTunes"
+	if player state is not playing then
+		play
+	else
+		pause
+	end if
+end tell
+
+  </pre>  
+  </td>
+</tr>
+<tr>
+  <td colspan=2 bgcolor=#FFFFFF>I'm sure there is a painfully obvious way of
+  doing this with what already exists.</td>
+</tr>
+</table>
