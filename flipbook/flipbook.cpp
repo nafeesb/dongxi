@@ -40,7 +40,9 @@
 
 using namespace std;
 
-double elapsed_time(void) {
+double
+elapsed_time(void)
+{
     static struct timeval prevclock;
     struct timeval newclock;
     double elapsed;
@@ -74,7 +76,9 @@ GLenum format = GL_RGBA;
 
 /* This creates the OpenGL window and makes the current OpenGL context
    draw into it. */
-Window make_window(int width, int height, int doublebuf) {
+Window
+make_window(int width, int height, int doublebuf)
+{
     XSetWindowAttributes attr;
     Colormap cmap;
     GLXContext context;
@@ -106,11 +110,13 @@ Window make_window(int width, int height, int doublebuf) {
     // if (GLX_SGI_swap_control)
     //     if (glXSwapIntervalSGI(1))
     //         throw runtime_error("Failed to set swap interval.");
-    
+
     return window;
 }
 
-bool do_system_stuff(void) {
+bool
+do_system_stuff()
+{
     XEvent event;
     if (XCheckWindowEvent(dpy, window, KeyPressMask, &event)) {
         KeySym key = XkbKeycodeToKeysym( dpy, event.xkey.keycode, 0,0 );
@@ -120,7 +126,8 @@ bool do_system_stuff(void) {
     return false;
 }
 
-void swap_buffers(void) {
+void
+swap_buffers() {
     glXSwapBuffers(dpy, window);
 }
 
@@ -151,7 +158,8 @@ void main() {                                   \
 ";
 
 
-struct shader_base {
+struct shader_base
+{
 protected:
     GLenum prog_type;
     GLuint shader_obj;
@@ -167,8 +175,9 @@ public:
     }
 
     ~shader_base() { glDeleteShader( shader_obj ); }
-    
-    virtual void compile() {
+
+    virtual void
+    compile() {
         glCompileShader(shader_obj);
 
         GLint status;
@@ -180,45 +189,53 @@ public:
         }
     }
 
-    virtual void attach( const GLuint program ) {
+    virtual void
+    attach( const GLuint program ) {
         glAttachShader( program, shader_obj );
     }
 };
 
-struct fragment_shader : public shader_base {
+struct fragment_shader : public shader_base
+{
     fragment_shader( const char* src ) : shader_base( src, GL_FRAGMENT_SHADER ) {}
 };
 
-struct vertex_shader : public shader_base {
+struct vertex_shader : public shader_base
+{
     vertex_shader( const char* src ) : shader_base( src, GL_VERTEX_SHADER ) {}
 };
 
 
-struct shader_program {
+struct shader_program
+{
     GLuint handle;
-    
+
     shader_program() {
         handle = glCreateProgram();
     }
 
     ~shader_program() { glDeleteProgram( handle ); }
 
-    shader_program& attach( vertex_shader& vp ) {
+    shader_program&
+    attach( vertex_shader& vp ) {
         vp.attach( handle );
         return *this;
     }
-    shader_program& attach( fragment_shader& fp ) {
+    shader_program&
+    attach( fragment_shader& fp ) {
         fp.attach( handle );
         glBindFragDataLocation( handle, 0, "outColor" );
         return *this;
     }
-    
-    shader_program& link() {
+
+    shader_program&
+    link() {
         glLinkProgram( handle );
         return *this;
     }
 
-    void use() {
+    void
+    use() {
         glUseProgram( handle );
     }
 };
@@ -227,14 +244,15 @@ struct shader_program {
 struct framebuffer {
     GLuint handle;
     int width, height;
-    
+
     framebuffer( int _w, int _h) : width(_w), height(_h) {
         glGenTextures( 1, &handle );
     }
 
     ~framebuffer() { glDeleteTextures( 1, &handle ); }
-    
-    void bind() {
+
+    void
+    bind() {
         glBindTexture( GL_TEXTURE_2D, handle );
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -243,7 +261,8 @@ struct framebuffer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-    void draw(unsigned* img) {
+    void
+    draw(unsigned* img) {
         glTexImage2D( GL_TEXTURE_2D,
                       0, GL_RGBA, width, height,
                       0,
@@ -255,7 +274,8 @@ struct framebuffer {
 
 
 
-int main(int argc, char **argv) {
+int
+main(int argc, char **argv) {
 
     int width;
     int height;
@@ -292,7 +312,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    
+
     try {
         make_window(width, height, doublebuf);
 
@@ -333,18 +353,18 @@ int main(int argc, char **argv) {
         glGenBuffers( 1, &ebo );
         glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
         glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW );
-        
+
         // compile shaders
         vertex_shader   vp(vertex_prog);
         fragment_shader fp(fragment_prog);
-        
+
         // build program
         shader_program program;
         program.attach( vp )
             .attach(fp)
             .link()
             .use();
-        
+
         // setup position attribute
         GLint pos_attr = glGetAttribLocation( program.handle, "position" );
         glEnableVertexAttribArray( pos_attr );
@@ -354,11 +374,11 @@ int main(int argc, char **argv) {
         // image dims so the fragment shader can calculate UVs
         GLint dim_attr = glGetUniformLocation( program.handle, "dims" );
         glUniform2f(dim_attr, float(width), float(height) );
-        
+
         // texture buffer
         framebuffer frame(width, height);
         frame.bind();
-        
+
         if (doublebuf) glDrawBuffer(GL_BACK);
 
         glClearColor( 0.f, 0.f, 0.f, 1.f );
@@ -368,17 +388,17 @@ int main(int argc, char **argv) {
 
         for (i = 0; ; i++) {
             if (do_system_stuff()) break;
-            
+
             if ((i%100)==99)
                 cout << "FPS = " << 100.0/elapsed_time() << "\r"  << flush;
 
             frame.draw(images+(i%NUMIMAGES)*width*height);         // send texture
             glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 ); // draw geometry
-            
+
             if (doublebuf) swap_buffers();
         }
         cout << endl;
-        
+
         glDeleteBuffers( 1, &ebo );
         glDeleteBuffers( 1, &vbo );
     }
